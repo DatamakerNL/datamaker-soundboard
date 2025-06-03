@@ -23,6 +23,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      border: none
     }
 
     footer {
@@ -38,55 +39,24 @@ footer img {
   height: auto;
 }
   </style>
-
-<script>
-    const playingStatus = {};
-
-    function playSound(id) {
-      const audio = document.getElementById(id);
-
-      // First time clicked
-      if (!playingStatus[id]) {
-        playingStatus[id] = false;
-      }
-
-      // If currently playing, pause
-      if (!audio.paused && !audio.ended) {
-        audio.pause();
-        playingStatus[id] = false;
-      } else {
-        audio.currentTime = 0;
-        audio.play();
-        playingStatus[id] = true;
-      }
-    }
-  </script>
 </head>
 <body class="bg-dark text-white">
 
   <div class="container py-5 text-center">
     <h2 class="mb-4">🎛️Corner office Soundboard</h2>
 
-    <div class="soundboard-grid">
-      <button class="btn btn-primary sound-btn" onclick="playSound('audio1')">Cartoon Haha</button>
-      <button class="btn btn-success sound-btn" onclick="playSound('audio2')">HAHA</button>
-      <button class="btn btn-danger sound-btn" onclick="playSound('audio3')">OOOh!</button>
-      <button class="btn btn-warning sound-btn" onclick="playSound('audio4')">Yayy!!</button>
-      <button class="btn btn-info sound-btn" onclick="playSound('audio5')">Gaap!</button>
-      <button class="btn btn-secondary sound-btn" onclick="playSound('audio6')">Crickets</button>
-        <button class="btn btn-info sound-btn" onclick="playSound('audio7')">Hardly working</button>
-      <button class="btn btn-secondary sound-btn" onclick="playSound('audio8')">Game over</button>
+    <div class="d-flex justify-content-center mb-4">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="toggleSwitch">
+        <label class="form-check-label ms-2" for="toggleSwitch" id="toggleLabel">🎵 Sounds</label>
+      </div>
     </div>
 
-    <!-- Audio elements (reference the 'audio/' folder) -->
-    <audio id="audio1" src="audio/mixkit-cartoon-voice-laugh.wav" type="audio/wav"></audio>
-    <audio id="audio2" src="audio/mixkit-crowd-laugh.wav" type="audio/wav"></audio>
-    <audio id="audio3" src="audio/mixkit-female-astonished-gasp.wav" type="audio/wav"></audio>
-    <audio id="audio4" src="audio/mixkit-small-group-cheer-and-applause.wav" type="audio/wav"></audio>
-    <audio id="audio5" src="audio/mixkit-man-slweepy-long-yawn.wav" type="audio/wav"></audio>
-    <audio id="audio6" src="audio/mixkit-crickets-and-insects-in-the-wild-ambience.wav" type="audio/wav"></audio>
-    <audio id="audio7" src="audio/mixkit-keyboard-typing.wav" type="audio/wav"></audio>
-    <audio id="audio8" src="audio/mixkit-sad-game-over-trombone.wav" type="audio/wav"></audio>
+    <div class="soundboard-grid" id="soundboard"></div>
+
+    <!-- Container for audio elements -->
+    <div id="audio-container"></div>
+
   </div>
 
   <!-- Footer with logo -->
@@ -95,6 +65,100 @@ footer img {
         <img src="img/datamakerlong.png" alt="Datamaker B.V.">
     </a>
   </footer>
+  <script>
+
+     const sounds = [
+      { id: "audio1", label: "Creepy lach", src: "audio/mixkit-cartoon-voice-laugh.wav", color: "#c7522a", type: "audio/wav"},
+      { id: "audio2", label: "Lachen", src: "audio/mixkit-crowd-laugh.wav", color: "#e5c185", type: "audio/wav" },
+      { id: "audio3", label: "Oooh!", src: "audio/mixkit-female-astonished-gasp.wav", color: "#f0daa5", type: "audio/wav" },
+      { id: "audio4", label: "Saai!", src: "audio/mixkit-man-slweepy-long-yawn.wav", color: "#b8cdab", type: "audio/wav" },
+      { id: "audio5", label: "Krekels", src: "audio/mixkit-crickets-and-insects-in-the-wild-ambience.wav", color: "#74a892", type: "audio/wav" },
+      { id: "audio6", label: "Hard aan 't typen", src: "audio/mixkit-keyboard-typing.wav", color: "#74a892", type: "audio/wav" },
+      { id: "audio7", label: "Game over...", src: "audio/mixkit-sad-game-over-trombone.wav", color: "#008585", type: "audio/wav" },
+      { id: "audio8", label: "Publiekelijk applaus", src: "audio/mixkit-small-group-cheer-and-applause.wav", color: "#004343", type: "audio/wav" },
+      { id: "audio9", label: "Aankondiging", src: "audio/mixkit-elevator-announcement-bells-112.wav", color: "#c7522a", type: "audio/wav" },
+      { id: "audio10", label: "Cash", src: "audio/cash.mp3", color: "#e5c185", type: "audio/mp3"},
+      { id: "audio11", label: "Tik Tok...", src: "audio/mixkit-bell-tick-tock-timer-1046.wav", color: "#f0daa5", type: "audio/wav" },
+      { id: "audio12", label: "Aftellen", src: "audio/mixkit-female-microphone-countdown-341.wav", color: "#b8cdab", type: "audio/wav" },
+      { id: "audio13", label: "Purrr", src: "audio/mixkit-big-wild-cat-long-purr-96.wav", color: "#74a892", type: "audio/wav" },
+      { id: "audio14", label: "Aandacht!", src: "audio/mixkit-little-cat-attention-meow-86.wav", color: "#74a892", type: "audio/wav" },
+      { id: "audio15", label: "Miaow!", src: "audio/mixkit-angry-cartoon-kitty-meow-94.wav", color: "#008585", type: "audio/wav" },
+      { id: "audio16", label: "Kippen", src: "audio/mixkit-chickens-clucking-short-1772.wav", color: "#004343", type: "audio/wav" }
+    ];
+
+    const quotes = [
+      { id: "quote1", label: "James bond", src: "audio/bond2.wav", color: "#0f6385", type: "audio/wav"},
+      { id: "quote2", label: "We've got a problem", src: "audio/hanks_apollo_problem.wav", color: "#358292", type: "audio/wav" },
+      { id: "quote3", label: "Shut up", src: "audio/spacey_swimming_favor.wav", color: "#88aca2", type: "audio/wav" },
+      { id: "quote4", label: "Freedom (braveheart)", src: "audio/gibson_braveheart_freedom.wav", color: "#b8cdab", type: "audio/wav" },
+      { id: "quote5", label: "Size of this thing!", src: "audio/size.wav", color: "#d6a379", type: "audio/wav" },
+      { id: "quote6", label: "Crikey", src: "audio/crikey3.wav", color: "#a77c65", type: "audio/wav" },
+      { id: "quote7", label: "Godfather", src: "audio/offer_x.wav", color: "#745644", type: "audio/wav" },
+      { id: "quote8", label: "Who's your daddy?", src: "audio/daddy.wav", color: "#573d31", type: "audio/wav" },
+      { id: "quote9", label: "You don't frighten us", src: "audio/english_pig_dogs.wav", color: "#0f6385", type: "audio/wav" },
+      { id: "quote10", label: "This calls for discussion", src: "audio/discussion.wav", color: "#358292", type: "audio/wav"},
+      { id: "quote11", label: "Ping machine", src: "audio/monty_pythons_meaning_machine1.wav", color: "#88aca2", type: "audio/wav" },
+      { id: "quote12", label: "I'll be back", src: "audio/t1_be_back.wav", color: "#b8cdab", type: "audio/wav" },
+      { id: "quote13", label: "You've got mail", src: "audio/ygm_hanks_x.wav", color: "#d6a379", type: "audio/wav" },
+      { id: "quote14", label: "Playball!", src: "audio/league_play_ball.wav", color: "#a77c65", type: "audio/wav" },
+      { id: "quote15", label: "Who gives a sh*t!", src: "audio/coburn_payback_who_gives.wav", color: "#745644", type: "audio/wav" },
+      { id: "quote16", label: "No one else...", src: "audio/pitt_troy_no_one_else.wav", color: "#573d31", type: "audio/wav" }
+    ];
+
+      const board = document.getElementById("soundboard");
+  const audioContainer = document.getElementById("audio-container");
+  const toggleBtn = document.getElementById("toggleBtn");
+
+  let isSoundMode = true;
+
+  const playingStatus = {};
+
+  function renderBoard(items) {
+    board.innerHTML = ""; // Clear current buttons
+    items.forEach(item => {
+      // Create button
+      const button = document.createElement("button");
+      button.className = `sound-btn`;
+      button.innerText = item.label;
+      button.onclick = () => playSound(item.id);
+      button.style.backgroundColor = item.color;
+      button.style.color = "white";
+      board.appendChild(button);
+
+      // Create audio element if not already added
+      if (!document.getElementById(item.id)) {
+        const audio = document.createElement("audio");
+        audio.id = item.id;
+        audio.src = item.src;
+        audio.type = item.type;
+        audioContainer.appendChild(audio);
+      }
+    });
+  }
+
+  function playSound(id) {
+    const audio = document.getElementById(id);
+    if (!playingStatus[id]) playingStatus[id] = false;
+    if (!audio.paused && !audio.ended) {
+      audio.pause();
+      playingStatus[id] = false;
+    } else {
+      audio.currentTime = 0;
+      audio.play();
+      playingStatus[id] = true;
+    }
+  }
+
+  // Toggle content on button click
+   toggleSwitch.addEventListener("change", () => {
+    isSoundMode = !toggleSwitch.checked;
+    toggleLabel.innerText = isSoundMode ? "🎵 Sounds" : "💬 Quotes";
+    renderBoard(isSoundMode ? sounds : quotes);
+  });
+
+  // Initial load
+  renderBoard(sounds);
+  </script>
 
 </body>
 </html>
